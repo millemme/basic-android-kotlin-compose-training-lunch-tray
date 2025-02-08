@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.lunchtray.ui
+package com.example.cityapp.ui
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
@@ -22,38 +22,38 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.lunchtray.R
-import com.example.lunchtray.datasource.DataSource
-import com.example.lunchtray.model.MenuItem
-import com.example.lunchtray.model.MenuItem.SideDishItem
+import com.example.cityapp.R
+import com.example.cityapp.datasource.DataSource
+import com.example.cityapp.model.CityItem.CategoryItem
+import com.example.cityapp.model.CityItem
+import com.example.cityapp.model.CityUiState
 
 @Composable
-fun SideDishMenuScreen(
-    options: List<SideDishItem>,
-    onCancelButtonClicked: () -> Unit,
-    onNextButtonClicked: () -> Unit,
-    onSelectionChanged: (SideDishItem) -> Unit,
-    modifier: Modifier = Modifier
+fun CategoryScreen(
+    options: List<CategoryItem>,
+    onClick: (CityItem) -> Unit,
+    modifier: Modifier = Modifier,
+    uiState: CityUiState,
+    onRowClick: (Int) -> Unit
 ) {
-    BaseMenuScreen(
+    BaseCityScreen(
         options = options,
-        onCancelButtonClicked = onCancelButtonClicked,
-        onNextButtonClicked = onNextButtonClicked,
-        onSelectionChanged = onSelectionChanged as (MenuItem) -> Unit,
-        modifier = modifier
+        onClick = onClick as (CityItem) -> Unit,
+        modifier = modifier,
+        uiState = uiState,
+        onRowClick = onRowClick
     )
 }
 
-@Preview
+/*@Preview
 @Composable
-fun SideDishMenuPreview(){
-    SideDishMenuScreen(
-        options = DataSource.sideDishMenuItems,
-        onNextButtonClicked = {},
-        onCancelButtonClicked = {},
-        onSelectionChanged = {},
+fun CategoryScreenPreview(){
+    CategoryScreen(
+        options = DataSource.categoryItems,
+        onClick = {},
+        uiState = {<CityUiState>},
         modifier = Modifier
             .padding(dimensionResource(R.dimen.padding_medium))
             .verticalScroll(rememberScrollState())
     )
-}
+}*/

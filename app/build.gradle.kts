@@ -20,11 +20,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.lunchtray"
+    namespace = "com.example.cityapp"
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.example.lunchtray"
+        applicationId = "com.example.cityapp"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -73,6 +73,7 @@ dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
     implementation("androidx.navigation:navigation-compose:2.8.5")
+    implementation("io.coil-kt:coil-compose:2.5.0")
 
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     debugImplementation("androidx.compose.ui:ui-tooling")

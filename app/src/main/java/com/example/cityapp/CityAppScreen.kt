@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.lunchtray
+package com.example.cityapp
 
 import androidx.annotation.StringRes
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -32,35 +31,29 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.lunchtray.datasource.DataSource
-import com.example.lunchtray.ui.AccompanimentMenuScreen
-import com.example.lunchtray.ui.CheckoutScreen
-import com.example.lunchtray.ui.EntreeMenuScreen
-import com.example.lunchtray.ui.OrderViewModel
-import com.example.lunchtray.ui.SideDishMenuScreen
-import com.example.lunchtray.ui.StartOrderScreen
+import com.example.cityapp.datasource.DataSource
+import com.example.cityapp.ui.CategoryScreen
+import com.example.cityapp.ui.CityViewModel
+import com.example.cityapp.ui.BaseCityScreen
+import com.example.cityapp.ui.RecommendationScreen
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
-enum class LunchTrayScreen(@StringRes val title: Int) {
-    Start(title = R.string.app_name),
-    Entree(title = R.string.choose_entree),
-    SideDish(title = R.string.choose_side_dish),
-    Accompaniment(title = R.string.choose_accompaniment),
-    Checkout(title = R.string.order_checkout)
+enum class CityAppScreen(@StringRes val title: Int = R.string.Corvallis) {
+    Start(title = R.string.Corvallis),
+    Category,
+    Recommendations
 }
 
-/**
- * Composable that displays the topBar and displays back button if back navigation is possible.
- */
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun LunchTrayAppBar(
+fun CityAppAppBar(
     @StringRes currentScreenTitle: Int,
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
@@ -83,108 +76,82 @@ fun LunchTrayAppBar(
 }
 
 @Composable
-fun LunchTrayApp() {
+fun CityAppApp() {
     //Create NavController
     val navController = rememberNavController()
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
-    val currentScreen = LunchTrayScreen.valueOf(
-        backStackEntry?.destination?.route ?: LunchTrayScreen.Start.name
+    val currentScreen = CityAppScreen.valueOf(
+        backStackEntry?.destination?.route ?: CityAppScreen.Start.name
     )
     // Create ViewModel
-    val viewModel: OrderViewModel = viewModel()
+    val viewModel: CityViewModel = viewModel()
 
     Scaffold(
         topBar = {
-            LunchTrayAppBar(
+            CityAppAppBar(
                 currentScreenTitle = currentScreen.title,
                 canNavigateBack = navController.previousBackStackEntry != null,
                 navigateUp = { navController.navigateUp() }
             )
         }
     ) { innerPadding ->
-        val uiState by viewModel.uiState.collectAsState()
+        val cityUiState by viewModel.uiState.collectAsState()
 
         NavHost(
             navController = navController,
-            startDestination = LunchTrayScreen.Start.name,
+            startDestination = CityAppScreen.Start.name,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(route = LunchTrayScreen.Start.name) {
-                StartOrderScreen(
-                    onStartOrderButtonClicked = {
-                        navController.navigate(LunchTrayScreen.Entree.name)
+            composable(route = CityAppScreen.Start.name) {
+                CategoryScreen(
+                    uiState = cityUiState,
+                    options = DataSource.categoryItems,
+                    onRowClick = { item ->
+                        viewModel.updateCurrentRowId(item)
+                    },
+                    onClick = {item ->
+                        viewModel.updateCity(item)
                     },
                     modifier = Modifier
-                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+
                 )
             }
 
-            composable(route = LunchTrayScreen.Entree.name) {
-                EntreeMenuScreen(
-                    options = DataSource.entreeMenuItems,
-                    onCancelButtonClicked = {
-                        viewModel.resetOrder()
-                        navController.popBackStack(LunchTrayScreen.Start.name, inclusive = false)
+            composable(route = CityAppScreen.Recommendations.name) {
+                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+                val selectedCategoryId = uiState.currentRowId
+                val recommendations = selectedCategoryId?.let { categoryId ->
+                    DataSource.recommendationsItems[categoryId] ?: emptyList()
+                } ?: emptyList()
+                RecommendationScreen(
+                    uiState = uiState,
+                    onRowClick = { item ->
+                        viewModel.updateCurrentRowId(item)
                     },
-                    onNextButtonClicked = {
-                        navController.navigate(LunchTrayScreen.SideDish.name)
-                    },
-                    onSelectionChanged = { item ->
-                        viewModel.updateEntree(item)
+                    options = recommendations,
+                    onClick = { item ->
+                        viewModel.updateCity(item)
                     },
                     modifier = Modifier
                         .verticalScroll(rememberScrollState())
                 )
             }
 
-            composable(route = LunchTrayScreen.SideDish.name) {
-                SideDishMenuScreen(
-                    options = DataSource.sideDishMenuItems,
-                    onCancelButtonClicked = {
-                        viewModel.resetOrder()
-                        navController.popBackStack(LunchTrayScreen.Start.name, inclusive = false)
-                    },
-                    onNextButtonClicked = {
-                        navController.navigate(LunchTrayScreen.Accompaniment.name)
-                    },
-                    onSelectionChanged = { item ->
-                        viewModel.updateSideDish(item)
-                    },
-                    modifier = Modifier
-                        .verticalScroll(rememberScrollState())
-                )
-            }
 
-            composable(route = LunchTrayScreen.Accompaniment.name) {
-                AccompanimentMenuScreen(
-                    options = DataSource.accompanimentMenuItems,
-                    onCancelButtonClicked = {
-                        viewModel.resetOrder()
-                        navController.popBackStack(LunchTrayScreen.Start.name, inclusive = false)
-                    },
-                    onNextButtonClicked = {
-                        navController.navigate(LunchTrayScreen.Checkout.name)
-                    },
-                    onSelectionChanged = { item ->
-                        viewModel.updateAccompaniment(item)
-                    },
-                    modifier = Modifier
-                        .verticalScroll(rememberScrollState())
-                )
-            }
-
-            composable(route = LunchTrayScreen.Checkout.name) {
+/*
+            composable(route = CityAppScreen.Checkout.name) {
                 CheckoutScreen(
                     orderUiState = uiState,
                     onCancelButtonClicked = {
                         viewModel.resetOrder()
-                        navController.popBackStack(LunchTrayScreen.Start.name, inclusive = false)
+                        navController.popBackStack(CityAppScreen.Start.name, inclusive = false)
                     },
                     onNextButtonClicked = {
                         viewModel.resetOrder()
-                        navController.popBackStack(LunchTrayScreen.Start.name, inclusive = false)
+                        navController.popBackStack(CityAppScreen.Start.name, inclusive = false)
                     },
                     modifier = Modifier
                         .verticalScroll(rememberScrollState())
@@ -193,7 +160,7 @@ fun LunchTrayApp() {
                             end = dimensionResource(R.dimen.padding_medium),
                         )
                 )
+            }*/
+        }
             }
         }
-    }
-}

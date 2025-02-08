@@ -13,14 +13,25 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.lunchtray.model
+package com.example.cityapp.model
 
-data class OrderUiState(
-    // Entree Selection
-    val entree: MenuItem.EntreeItem? = null,
-    val sideDish: MenuItem.SideDishItem? = null,
-    val accompaniment: MenuItem.AccompanimentItem? = null,
-    val itemTotalPrice: Double = 0.0,
-    val orderTax: Double = 0.0,
-    val orderTotalPrice: Double = 0.0
-)
+sealed class CityItem(
+    open val name: String,
+    open val id: Int,
+    open val imageRes: String
+) {
+    data class CategoryItem (
+        override val id: Int,
+        override val name: String,
+        override val imageRes: String
+    ) : CityItem(name, id, imageRes)
+
+    data class RecommendationsItem (
+        override val name: String,
+        val address: String,
+        val description: String,
+        override val imageRes: String,
+        override val id: Int
+    ) : CityItem(name, id, imageRes)
+
+}

@@ -27,5 +27,5 @@ dependencyResolutionManagement {
         mavenCentral()
     }
 }
-rootProject.name = "Lunch Tray"
+rootProject.name = "CityApp"
 include(":app")

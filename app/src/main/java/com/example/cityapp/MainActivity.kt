@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.lunchtray
+package com.example.cityapp
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import com.example.lunchtray.ui.theme.LunchTrayTheme
+import com.example.cityapp.ui.theme.CityAppTheme
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            LunchTrayTheme {
-                LunchTrayApp()
+            CityAppTheme {
+                CityAppApp()
             }
         }
     }
