@@ -17,6 +17,8 @@ package com.example.cityapp.ui
  */
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.SavedStateHandle
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -24,20 +26,38 @@ import kotlinx.coroutines.flow.update
 import com.example.cityapp.model.CityItem.*
 import com.example.cityapp.model.CityItem
 import com.example.cityapp.model.CityUiState
+import com.example.cityapp.datasource.DataSource
+import javax.inject.Inject
 
-class CityViewModel : ViewModel() {
+@HiltViewModel
+class CityViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle
+) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(CityUiState())
+    private val _uiState = MutableStateFlow(
+        CityUiState(
+            currentRowId = savedStateHandle.get<Int>("currentRowId") ?: 0,
+            categories = DataSource.categoryItems
+        )
+    )
     val uiState: StateFlow<CityUiState> = _uiState.asStateFlow()
 
+    fun setSelectedCategoryId(categoryId: Int) {
+        savedStateHandle["currentRowId"] = categoryId
+        _uiState.update { currentState ->
+            currentState.copy(currentRowId = categoryId)
+        }
+    }
+
     fun updateCategory(selectedCategory: CategoryItem) {
-        _uiState.update {currentState ->
+        setSelectedCategoryId(selectedCategory.id)
+        _uiState.update { currentState ->
             currentState.copy(currentCategory = selectedCategory)
         }
     }
 
     fun updateRecommendation(selectedRecommendations: RecommendationsItem) {
-        _uiState.update {currentState ->
+        _uiState.update { currentState ->
             currentState.copy(currentRecommendations = selectedRecommendations)
         }
     }
@@ -45,15 +65,8 @@ class CityViewModel : ViewModel() {
     fun updateCity(newItem: CityItem) {
         _uiState.update { currentState ->
             currentState.copy(
-                currentCity = if (newItem is CityItem) newItem else currentState.currentCity,
-
-
+                currentCity = if (newItem is CityItem) newItem else currentState.currentCity
             )
-        }
-    }
-    fun updateCurrentRowId(newRowId: Int){
-        _uiState.update { currentState ->
-            currentState.copy(currentRowId = newRowId)
         }
     }
 }

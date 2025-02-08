@@ -31,7 +31,8 @@ sealed class CityItem(
         val address: String,
         val description: String,
         override val imageRes: String,
-        override val id: Int
+        override val id: Int,
+        val categoryId: Int
     ) : CityItem(name, id, imageRes)
 
 }

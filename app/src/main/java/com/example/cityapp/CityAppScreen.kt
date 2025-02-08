@@ -33,10 +33,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.cityapp.datasource.DataSource
 import com.example.cityapp.ui.CategoryScreen
 import com.example.cityapp.ui.CityViewModel
@@ -44,10 +46,13 @@ import com.example.cityapp.ui.BaseCityScreen
 import com.example.cityapp.ui.RecommendationScreen
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
-enum class CityAppScreen(@StringRes val title: Int = R.string.Corvallis) {
-    Start(title = R.string.Corvallis),
-    Category,
-    Recommendations
+sealed class CityAppScreen(@StringRes val title: Int = R.string.Corvallis) {
+    object Start : CityAppScreen(title = R.string.Corvallis)
+    object Category : CityAppScreen()
+    object Recommendations : CityAppScreen() {
+        const val route = "recommendations/{categoryId}"
+        const val categoryIdArg = "categoryId"
+    }
 }
 
 
@@ -82,9 +87,11 @@ fun CityAppApp() {
     // Get current back stack entry
     val backStackEntry by navController.currentBackStackEntryAsState()
     // Get the name of the current screen
-    val currentScreen = CityAppScreen.valueOf(
-        backStackEntry?.destination?.route ?: CityAppScreen.Start.name
-    )
+    val currentScreen = when(backStackEntry?.destination?.route) {
+        CityAppScreen.Start::class.java.simpleName -> CityAppScreen.Start
+        CityAppScreen.Recommendations.route -> CityAppScreen.Recommendations
+        else -> CityAppScreen.Start
+    }
     // Create ViewModel
     val viewModel: CityViewModel = viewModel()
 
@@ -101,15 +108,16 @@ fun CityAppApp() {
 
         NavHost(
             navController = navController,
-            startDestination = CityAppScreen.Start.name,
+            startDestination = CityAppScreen.Start::class.java.simpleName,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(route = CityAppScreen.Start.name) {
+            composable(route = CityAppScreen.Start::class.java.simpleName) {
                 CategoryScreen(
                     uiState = cityUiState,
                     options = DataSource.categoryItems,
                     onRowClick = { item ->
-                        viewModel.updateCurrentRowId(item)
+                        viewModel.setSelectedCategoryId(item)
+                        navController.navigate("recommendations/$item")
                     },
                     onClick = {item ->
                         viewModel.updateCity(item)
@@ -120,16 +128,21 @@ fun CityAppApp() {
                 )
             }
 
-            composable(route = CityAppScreen.Recommendations.name) {
-                val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-                val selectedCategoryId = uiState.currentRowId
-                val recommendations = selectedCategoryId?.let { categoryId ->
-                    DataSource.recommendationsItems[categoryId] ?: emptyList()
-                } ?: emptyList()
+            composable(
+                route = CityAppScreen.Recommendations.route,
+                arguments = listOf(
+                    navArgument(CityAppScreen.Recommendations.categoryIdArg) {
+                        type = NavType.IntType
+                    }
+                )
+            ) { backStackEntry ->
+                val categoryId = backStackEntry.arguments?.getInt(CityAppScreen.Recommendations.categoryIdArg) ?: 0
+                val recommendations = DataSource.recommendationsItems[categoryId] ?: emptyList()
                 RecommendationScreen(
                     uiState = uiState,
                     onRowClick = { item ->
-                        viewModel.updateCurrentRowId(item)
+                        viewModel.setSelectedCategoryId(item)
+                        navController.navigate("${CityAppScreen.Recommendations::class.java.simpleName}/$item")
                     },
                     options = recommendations,
                     onClick = { item ->
