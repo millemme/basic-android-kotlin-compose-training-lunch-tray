@@ -33,8 +33,20 @@ import com.example.cityapp.nav.Screen
 import com.example.cityapp.nav.Screen.Screen.Info
 import com.example.cityapp.model.CityUiState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Email
+import androidx.compose.material3.Button
+import androidx.compose.ui.graphics.Color
 import com.example.cityapp.datasource.DataSource
 import com.example.cityapp.datasource.DataSource.categories
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.IconButtonDefaults
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Row
+
+
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -51,7 +63,7 @@ fun RecommendationCard(
         onClick = {
             cityViewModel.updateCurrentRecommendation(recommendation)
             navController.navigate(Info.route)
-        },
+        }
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -83,7 +95,7 @@ fun Recommendation(
 
     Scaffold(
         topBar = {
-            RecommendationTitleBar(CityUiState.currentCategory.name, modifier)
+            RecommendationTitleBar(CityUiState.currentCategory.name, modifier, navController)
         }
     ) { innerPadding ->
         LazyColumn(contentPadding = innerPadding) {
@@ -100,19 +112,37 @@ fun Recommendation(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun RecommendationTitleBar(selectedCategoryName: String, modifier: Modifier = Modifier) {
+fun RecommendationTitleBar(selectedCategoryName: String, modifier: Modifier = Modifier,
+                           navController: NavController,) {
+    val cityViewModel: CityViewModel = viewModel()
     CenterAlignedTopAppBar(
         title = {
             Row(
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
+                //horizontalArrangement = Arrangement.Start
             ) {
-                Spacer(modifier = Modifier.width(8.dp))
+                Button(
+                    modifier = Modifier,
+
+                    onClick = {
+                        navController.navigate(Screen.Screen.BaseCityScreen.route)
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.White)
+                ) {androidx.compose.material3.Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "arrow back",
+                    tint = Color.Black,
+                    modifier = Modifier
+
+                )}
+                Spacer(modifier = Modifier.width(50.dp))
                 Text(
                     text = selectedCategoryName,
                     style = MaterialTheme.typography.headlineLarge,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
+                Spacer(modifier = Modifier.width(290.dp))
             }
         },
         modifier = modifier

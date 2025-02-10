@@ -88,6 +88,7 @@ fun CategoryCard(
                 contentScale = ContentScale.Fit
 
             )
+            Spacer(modifier = Modifier.width(16.dp))
             Text(
                 text = category.name,
                 modifier = Modifier,

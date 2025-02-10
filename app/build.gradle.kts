@@ -77,4 +77,6 @@ dependencies {
     //implementation("org.jetbrains.kotlin:kotlin-metadata-jvm:0.9.0")
     debugImplementation("androidx.compose.ui:ui-test-manifest")
     debugImplementation("androidx.compose.ui:ui-tooling")
+    implementation("androidx.appcompat:appcompat-resources:1.7.0")
+    implementation("androidx.appcompat:appcompat:1.7.0")
 }
