@@ -59,6 +59,7 @@ import com.example.cityapp.nav.Screen
 import com.example.cityapp.ui.RecommendationInfoScreen
 import com.example.cityapp.nav.Screen.Screen.RecommendationScreen
 import com.example.cityapp.datasource.DataSource.categories
+import androidx.compose.foundation.layout.PaddingValues
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -102,7 +103,8 @@ fun CategoryCard(
 @Composable
 fun CityApp(
     navController: NavController,
-    modifier: Modifier = Modifier
+    viewModel: CityViewModel ,
+    innerPadding: PaddingValues
 ) {
     Scaffold(
         topBar = {
