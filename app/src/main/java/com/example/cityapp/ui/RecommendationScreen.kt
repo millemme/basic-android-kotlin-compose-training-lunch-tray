@@ -138,11 +138,11 @@ fun RecommendationTitleBar(selectedCategoryName: String, modifier: Modifier = Mo
                 Spacer(modifier = Modifier.width(50.dp))
                 Text(
                     text = selectedCategoryName,
-                    style = MaterialTheme.typography.headlineLarge,
+                    style = MaterialTheme.typography.headlineMedium,
                     fontWeight = FontWeight.Bold,
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
-                Spacer(modifier = Modifier.width(290.dp))
+                Spacer(modifier = Modifier.width(150.dp))
             }
         },
         modifier = modifier
